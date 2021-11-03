@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.os.Build;
 
 import androidx.browser.customtabs.CustomTabsCallback;
 import androidx.browser.customtabs.CustomTabsIntent;
@@ -207,8 +208,16 @@ public class ChromeCustomTabsActivity extends Activity implements MethodChannel.
     extras.putString(ActionBroadcastReceiver.CHROME_MANAGER_ID, manager.id);
     actionIntent.putExtras(extras);
 
+    // Build a PendingIntent that can be used to launch the UI from the device Lock Screen.
+    int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT;
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      // Android 12 requires the mutability flag explicitly
+      flags |= PendingIntent.FLAG_MUTABLE;
+    }
+
     return PendingIntent.getBroadcast(
-            this, actionSourceId, actionIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            this, actionSourceId, actionIntent, flags);
   }
 
   public void dispose() {
